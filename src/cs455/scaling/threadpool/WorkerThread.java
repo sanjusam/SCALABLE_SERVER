@@ -2,6 +2,7 @@ package cs455.scaling.threadpool;
 
 import cs455.scaling.task.Task;
 import cs455.scaling.task.TaskType;
+import cs455.scaling.task.VoidTask;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -15,6 +16,7 @@ public class WorkerThread implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("DEBUG :: Thread Started ");
         while (true) {
             if(myTask.getTaskType() == TaskType.VOID_TASK) {
                 continue;
@@ -25,12 +27,18 @@ public class WorkerThread implements Runnable {
                 System.out.println("IO Exception Caught");
             } catch (NoSuchAlgorithmException nSAe) {
                 System.out.println("NoSuchAlgorithmException Exception Caught");
+            } finally {
+                myTask = new VoidTask();
             }
-
         }
     }
 
     public void setTask(final Task myTask) {
         this.myTask = myTask;
     }
+
+    public Task getTask() {
+        return myTask;
+    }
+
 }

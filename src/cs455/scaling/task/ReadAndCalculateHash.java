@@ -1,5 +1,7 @@
 package cs455.scaling.task;
 
+import cs455.scaling.taskQueue.TaskQueueManager;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -12,7 +14,7 @@ import java.security.NoSuchAlgorithmException;
 public class ReadAndCalculateHash implements Task {
     private final TaskType taskType = TaskType.READ_COMPUTE;
     private SelectionKey key;
-    private byte[] dataReadyForSend;
+    private byte[] dataToSendBack;
 
     @Override
     public TaskType getTaskType() {
@@ -20,7 +22,7 @@ public class ReadAndCalculateHash implements Task {
     }
 
     @Override
-    public byte[] perform() throws IOException, NoSuchAlgorithmException {
+    public void perform() throws IOException, NoSuchAlgorithmException {
         SocketChannel channel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(8192); //TODO :: Adjust size
         int numRead = -1;
@@ -36,14 +38,15 @@ public class ReadAndCalculateHash implements Task {
             System.out.println("Connection closed by client: " + remoteAddr);
             channel.close();  //TODO ??
             key.cancel(); //TODO ??
-            return null;
         }
         byte[] data = new byte[numRead];
         System.arraycopy(buffer.array(), 0, data, 0, numRead);
         System.out.println("Got: " + new String(data, "US-ASCII"));
         key.interestOps(SelectionKey.OP_WRITE);
-        dataReadyForSend = SHA1FromBytes(data);
-        return dataReadyForSend;
+        dataToSendBack = SHA1FromBytes(data);
+        //TODO :: Should I add a new task to write to the same key??
+        final Task writeTask = new WriteTask(dataToSendBack, key);
+        TaskQueueManager.getInstance().addTask(writeTask);
     }
 
     @Override

@@ -21,11 +21,10 @@ public class WriteTask implements Task {
     }
 
     @Override
-    public byte[] perform() throws IOException {
+    public void perform() throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         channel.write(ByteBuffer.wrap(dataToWrite));
         key.interestOps(SelectionKey.OP_READ);
-        return null;
     }
 
     @Override

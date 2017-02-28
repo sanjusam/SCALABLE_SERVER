@@ -6,6 +6,6 @@ import java.security.NoSuchAlgorithmException;
 
 public interface Task {
     TaskType getTaskType();
-    byte[] perform() throws IOException, NoSuchAlgorithmException;
+    void perform() throws IOException, NoSuchAlgorithmException;
     void setSelectionKey(SelectionKey key);
 }
