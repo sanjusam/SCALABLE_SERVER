@@ -11,7 +11,7 @@ clean:
 	@rm  -rf ./cs455/scaling/task/ReadAndCalculateHash.class
 	@rm  -rf ./cs455/scaling/taskQueue/TaskQueueManager.class
 	@rm  -rf ./cs455/scaling/threadpool/ThreadPoolManager.class
-	@rm  -rf ./cs455/scaling/TaskOrchestrator/TaskDespatcherThread.class
+	@rm  -rf ./cs455/scaling/TaskOrchestrator/TaskDispatcherThread.class
 	@rm  -rf ./cs455/scaling/utils/ValidateCommandLine.class
 	@rm  -rf ./cs455/scaling/server/ConnectionListenerThread.class
 	@rm  -rf ./cs455/scaling/server/Server.class
@@ -28,7 +28,7 @@ compile:
 	@javac -d . ./src/cs455/scaling/task/ReadAndCalculateHash.java
 	@javac -d . ./src/cs455/scaling/threadpool/WorkerThread.java
 	@javac -d . ./src/cs455/scaling/threadpool/ThreadPoolManager.java
-	@javac -d . ./src/cs455/scaling/TaskOrchestrator/TaskDespatcherThread.java
+	@javac -d . ./src/cs455/scaling/TaskOrchestrator/TaskDispatcherThread.java
 	@javac -d . ./src/cs455/scaling/utils/ValidateCommandLine.java
 	@javac -d . ./src/cs455/scaling/server/ConnectionListenerThread.java
 	@javac -d . ./src/cs455/scaling/server/Server.java

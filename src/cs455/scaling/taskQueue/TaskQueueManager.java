@@ -20,6 +20,9 @@ public class TaskQueueManager {
     }
 
     public synchronized Task getTask() {
-        return taskQueue.getFirst();
+        if(!taskQueue.isEmpty()) {
+            return taskQueue.getFirst();
+        }
+        return null;
     }
 }

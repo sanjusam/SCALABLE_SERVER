@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class WorkerThread implements Runnable {
 
-    private Task myTask;
+    private volatile Task myTask;
     private final Task voidTask = new VoidTask();
     WorkerThread(final Task myTask) {
         this.myTask = myTask;
@@ -22,6 +22,7 @@ public class WorkerThread implements Runnable {
                 continue;
             }
             try {
+                System.out.println("DEBUG : Performing the task " + myTask.getTaskType().toString() );
                 myTask.perform();
                 myTask = voidTask;
             } catch (IOException iOe) {
@@ -35,6 +36,7 @@ public class WorkerThread implements Runnable {
     }
 
     public void setTask(final Task myTask) {
+        System.out.println("DEBUG : Setting Task to " + myTask.getTaskType().toString());
         this.myTask = myTask;
     }
 

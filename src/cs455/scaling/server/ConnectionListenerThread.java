@@ -6,6 +6,8 @@ import cs455.scaling.task.WriteTask;
 import cs455.scaling.taskQueue.TaskQueueManager;
 
 import java.io.IOException;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -40,7 +42,7 @@ public class ConnectionListenerThread implements Runnable {
                 } else if (key.isReadable()) {
                     this.read(key);
                 } else if (key.isWritable()) {
-                    this.write(key, new byte[1]);
+                    this.write(key, new byte[1]); //TODO:: REMOVE??
                 }
             }
         }
@@ -48,9 +50,13 @@ public class ConnectionListenerThread implements Runnable {
 
     private void accept(SelectionKey key) {
         ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
+
         try {
             SocketChannel channel = serverChannel.accept();
             channel.configureBlocking(false);
+            final Socket socket = channel.socket();
+            SocketAddress remoteAddress = socket.getRemoteSocketAddress();
+            System.out.println("DEBUG : Connected to " + remoteAddress);
             channel.register(this.selector, SelectionKey.OP_READ);
         } catch (IOException iOe) {
             System.out.println("WARN : IO Exception while accept");
@@ -59,11 +65,13 @@ public class ConnectionListenerThread implements Runnable {
 
     private void read(SelectionKey key) {
         final Task readAndCalculateHashTask = new ReadAndCalculateHash(key);
+        System.out.println("DEBUG : Something to read - Adding a task");
         taskQueueManager.addTask(readAndCalculateHashTask);
     }
 
     private void write(SelectionKey key, byte[] dataToWrite) {
         final Task writeTask = new WriteTask(key, dataToWrite);
+        System.out.println("DEBUG : Something to write - Adding a task");
         taskQueueManager.addTask(writeTask);
     }
 }

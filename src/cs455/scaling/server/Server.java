@@ -1,5 +1,6 @@
 package cs455.scaling.server;
 
+import cs455.scaling.TaskOrchestrator.TaskDispatcherThread;
 import cs455.scaling.threadpool.ThreadPoolManager;
 import cs455.scaling.utils.ValidateCommandLine;
 
@@ -31,10 +32,16 @@ public class Server {
         InetSocketAddress listenAddr = new InetSocketAddress(HOST_NAME, PORT_NUMBER);
         serverChannel.socket().bind(listenAddr);
         serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+        startTaskProcessors();
         acceptConnections();
         System.out.println("Server ready. Ctrl-C to stop.");
     }
 
+    private void startTaskProcessors() {
+        TaskDispatcherThread taskDispatcherThread = new TaskDispatcherThread();
+        Thread taskProcessorThread = new Thread(taskDispatcherThread);
+        taskProcessorThread.start();
+    }
     private void acceptConnections() throws IOException {
         final ConnectionListenerThread connectionListenerThread = new ConnectionListenerThread(selector);
         Thread connectionListener = new Thread(connectionListenerThread);
