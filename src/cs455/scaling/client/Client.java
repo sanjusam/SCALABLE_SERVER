@@ -2,10 +2,49 @@ package cs455.scaling.client;
 
 import cs455.scaling.utils.ValidateCommandLine;
 
-public class Client {
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
 
+public class Client {
+    private static int MESSAGE_RATE = 0;
+    private static int SERVER_PORT = 0;
+    private static String SERVER_NAME ;
     public static void main(String args []) {
-        int MESSAGE_RATE = 0;
+
+        validateInputArguments(args);
+
+        //TODO : Start messaging
+        final Client client = new Client();
+        SocketChannel clientChannel = client.startClient();
+        if(clientChannel == null) {
+            System.out.println("Error : Unable to establish connection to server " + SERVER_NAME + " " + SERVER_PORT);
+            System.exit(-1);
+        }
+
+        client.startMessageSender(clientChannel);
+    }
+
+    private SocketChannel startClient() {
+        try {
+            InetSocketAddress hostAddress = new InetSocketAddress(SERVER_NAME, SERVER_PORT);
+            SocketChannel client = SocketChannel.open(hostAddress);
+            System.out.println("Client... started");
+            return client;
+        } catch (IOException iOe) {
+            System.out.println("IO Exception caught while starting client... Exiting");
+            System.exit(-1);
+        }
+        return null;
+    }
+
+    private void startMessageSender(final SocketChannel client) {
+        ClientMessageSender clientMessageSender = new ClientMessageSender(MESSAGE_RATE, client);
+        Thread clientMessageSenderThread = new Thread(clientMessageSender);
+        clientMessageSenderThread.start();
+    }
+
+    private static void validateInputArguments(String[] args) {
         final boolean validArgs = ValidateCommandLine.validateArgumentCount(3, args); // Three arguments needed
         if(!validArgs) {
             System.out.println("Invalid Arguments: Valid arguments are server-host, server-port and messaging rate");
@@ -13,15 +52,22 @@ public class Client {
             System.exit(-1);
         }
 
+        if(ValidateCommandLine.isValidNumber(args[1])) {
+            SERVER_PORT = ValidateCommandLine.getNumber(args[1]);
+        }
+        if(SERVER_PORT <= 0) {
+            System.out.println("Cannot Start with the given server port: " + args[1]);
+            System.exit(-1);
+        }
+
         if(ValidateCommandLine.isValidNumber(args[2])) {
             MESSAGE_RATE = ValidateCommandLine.getNumber(args[2]);
         }
-
         if(MESSAGE_RATE <= 0) {
                 System.out.println("Cannot Start with the given Message rate : " + args[2]);
                 System.exit(-1);
         }
 
-        //TODO : Start messaging
+        SERVER_NAME = args[0];
     }
 }
