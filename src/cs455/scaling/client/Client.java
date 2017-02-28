@@ -13,12 +13,12 @@ public class Client {
             System.exit(-1);
         }
 
-        if(ValidateCommandLine.isValidNumber(args[0])) {
+        if(ValidateCommandLine.isValidNumber(args[2])) {
             MESSAGE_RATE = ValidateCommandLine.getNumber(args[2]);
         }
 
         if(MESSAGE_RATE <= 0) {
-                System.out.println("Cannot Start with the given Message rate " + MESSAGE_RATE);
+                System.out.println("Cannot Start with the given Message rate : " + args[2]);
                 System.exit(-1);
         }
 

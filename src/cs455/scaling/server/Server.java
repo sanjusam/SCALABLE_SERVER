@@ -12,12 +12,12 @@ public class Server {
             System.exit(-1);
         }
 
-        if(ValidateCommandLine.isValidNumber(args[1])) {
-            THREAD_POOL_SIZE = ValidateCommandLine.getNumber(args[1]);
+        if(ValidateCommandLine.isValidNumber(args[0])) {
+            THREAD_POOL_SIZE = ValidateCommandLine.getNumber(args[0]);
         }
 
         if(THREAD_POOL_SIZE <= 0) {
-                System.out.println("Cannot Start with the given thread pool " + THREAD_POOL_SIZE);
+                System.out.println("Cannot Start with the given thread pool : " + args[0]);
                 System.exit(-1);
         }
 
