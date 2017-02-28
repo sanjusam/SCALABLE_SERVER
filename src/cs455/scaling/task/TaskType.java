@@ -1,7 +1,7 @@
 package cs455.scaling.task;
 
 public enum TaskType {
-    NO_TASK (0, "default"),
+    VOID_TASK(0, "default"),
     READ_COMPUTE(1,"read-compute-hash"),
     WRITE(2, "write");
 
