@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 public class ReadAndCalculateHash implements Task {
     private final TaskType taskType = TaskType.READ_COMPUTE;
     private SelectionKey key;
+    private byte[] dataReadyForSend;
 
     @Override
     public TaskType getTaskType() {
@@ -33,15 +34,16 @@ public class ReadAndCalculateHash implements Task {
             Socket socket = channel.socket();
             SocketAddress remoteAddr = socket.getRemoteSocketAddress();
             System.out.println("Connection closed by client: " + remoteAddr);
-            channel.close();
-            key.cancel();
+            channel.close();  //TODO ??
+            key.cancel(); //TODO ??
             return null;
         }
         byte[] data = new byte[numRead];
         System.arraycopy(buffer.array(), 0, data, 0, numRead);
         System.out.println("Got: " + new String(data, "US-ASCII"));
         key.interestOps(SelectionKey.OP_WRITE);
-        return SHA1FromBytes(data);
+        dataReadyForSend = SHA1FromBytes(data);
+        return dataReadyForSend;
     }
 
     @Override

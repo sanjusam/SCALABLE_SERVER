@@ -1,4 +1,4 @@
-package cs455.scaling.TaskOrchestrator;
+package cs455.scaling.taskOrchestrator;
 
 import cs455.scaling.task.Task;
 import java.util.ArrayDeque;
