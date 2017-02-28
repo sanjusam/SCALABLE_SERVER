@@ -3,29 +3,71 @@ package cs455.scaling.server;
 import cs455.scaling.threadpool.ThreadPoolManager;
 import cs455.scaling.utils.ValidateCommandLine;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+
 public class Server {
 
-    public static void main (String args[]) {
-        int THREAD_POOL_SIZE = 0;
-        if(!ValidateCommandLine.validateArgumentCount(1, args)) { //One argument required
-            System.out.println("Thread pool size should be passed as an argument.");
+    private static int THREAD_POOL_SIZE = 0;
+    private static int PORT_NUMBER = 0;
+    private Selector selector;
+
+    public static void main (String args[]) throws IOException {
+
+        validateCommandLine(args);
+        initThreadPools();
+        final Server server = new Server();
+        server.startServer();
+    }
+
+    private void startServer() throws IOException {
+        final String HOST_NAME = "localhost";
+        this.selector = Selector.open();
+        ServerSocketChannel serverChannel = ServerSocketChannel.open();
+        serverChannel.configureBlocking(false);
+        InetSocketAddress listenAddr = new InetSocketAddress(HOST_NAME, PORT_NUMBER);
+        serverChannel.socket().bind(listenAddr);
+        serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+        acceptConnections();
+        System.out.println("Server ready. Ctrl-C to stop.");
+    }
+
+    private void acceptConnections() throws IOException {
+        final ConnectionListenerThread connectionListenerThread = new ConnectionListenerThread(selector);
+        Thread connectionListener = new Thread(connectionListenerThread);
+        connectionListener.start();
+    }
+
+    private static void validateCommandLine(final String[] args) {
+        if(!ValidateCommandLine.validateArgumentCount(2, args)) { //two argument required
+            System.out.println("Invalid Arguments : Valid arguments are port-number and thread-pool-size");
             System.exit(-1);
         }
 
         if(ValidateCommandLine.isValidNumber(args[0])) {
-            THREAD_POOL_SIZE = ValidateCommandLine.getNumber(args[0]);
+            PORT_NUMBER = ValidateCommandLine.getNumber(args[0]);
+        }
+        if(PORT_NUMBER <= 0) {
+            System.out.println("Cannot Start with the given port Number : " + args[0]);
+            System.exit(-1);
         }
 
+        if(ValidateCommandLine.isValidNumber(args[1])) {
+            THREAD_POOL_SIZE = ValidateCommandLine.getNumber(args[1]);
+        }
         if(THREAD_POOL_SIZE <= 0) {
-                System.out.println("Cannot Start with the given thread pool : " + args[0]);
-                System.exit(-1);
+            System.out.println("Cannot Start with the given thread pool : " + args[1]);
+            System.exit(-1);
         }
+    }
 
-
+    private static void initThreadPools() {
         final ThreadPoolManager threadPoolManager = ThreadPoolManager.getInstance();
         threadPoolManager.setMaxThreadPoolSize(THREAD_POOL_SIZE);
         threadPoolManager.startThreads();
-
-        //TODO :: Thread to wait for connections??
     }
+
 }

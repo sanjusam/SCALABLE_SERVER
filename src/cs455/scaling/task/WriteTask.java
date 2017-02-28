@@ -10,7 +10,7 @@ public class WriteTask implements Task {
     private SelectionKey key;
     private byte[] dataToWrite;
 
-    WriteTask(final byte[] dataToWrite, final SelectionKey key) {
+    public WriteTask(final SelectionKey key, final byte[] dataToWrite) {
         this.dataToWrite = dataToWrite;
         this.key = key;
     }

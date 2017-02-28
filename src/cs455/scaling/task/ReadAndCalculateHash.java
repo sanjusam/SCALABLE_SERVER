@@ -16,6 +16,9 @@ public class ReadAndCalculateHash implements Task {
     private SelectionKey key;
     private byte[] dataToSendBack;
 
+    public ReadAndCalculateHash(final SelectionKey key) {
+        this.key = key;
+    }
     @Override
     public TaskType getTaskType() {
         return taskType;
@@ -45,7 +48,7 @@ public class ReadAndCalculateHash implements Task {
         key.interestOps(SelectionKey.OP_WRITE);
         dataToSendBack = SHA1FromBytes(data);
         //TODO :: Should I add a new task to write to the same key??
-        final Task writeTask = new WriteTask(dataToSendBack, key);
+        final Task writeTask = new WriteTask(key, dataToSendBack);
         TaskQueueManager.getInstance().addTask(writeTask);
     }
 
