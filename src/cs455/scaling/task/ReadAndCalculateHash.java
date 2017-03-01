@@ -3,8 +3,6 @@ package cs455.scaling.task;
 import cs455.scaling.taskQueue.TaskQueueManager;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -28,22 +26,20 @@ public class ReadAndCalculateHash implements Task {
     public void perform() throws IOException, NoSuchAlgorithmException {
         SocketChannel channel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(8192); //TODO :: Adjust size
-        int numRead = -1;
+        int fullBytes = 0;
+        int readBytes = 0;
+        buffer.clear();
         try {
-            numRead = channel.read(buffer);
+            while(buffer.hasRemaining() && readBytes != -1) {
+                readBytes = channel.read(buffer);
+                fullBytes += readBytes;
+            }
+        } catch (final IOException iOe) {
+            System.out.println("Error : IO Exception thrown while reading byte buffer");
         }
-        catch (IOException e) {
-            System.out.println("Exception in reading data, Probably client closed connection ");
-        }
-        if (numRead == -1) {
-            Socket socket = channel.socket();
-            SocketAddress remoteAddr = socket.getRemoteSocketAddress();
-            System.out.println("Connection closed by client: " + remoteAddr);
-            channel.close();  //TODO ??
-            key.cancel(); //TODO ??
-        }
-        byte[] data = new byte[numRead];
-        System.arraycopy(buffer.array(), 0, data, 0, numRead);
+
+        byte[] data = new byte[fullBytes];
+        System.arraycopy(buffer.array(), 0, data, 0, readBytes);
         System.out.println("Got: " + new String(data, "US-ASCII"));
         key.interestOps(SelectionKey.OP_WRITE);
         dataToSendBack = SHA1FromBytes(data);

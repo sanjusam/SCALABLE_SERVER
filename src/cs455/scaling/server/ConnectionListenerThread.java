@@ -8,10 +8,12 @@ import cs455.scaling.taskQueue.TaskQueueManager;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 
 public class ConnectionListenerThread implements Runnable {
@@ -63,10 +65,17 @@ public class ConnectionListenerThread implements Runnable {
         }
     }
 
-    private void read(SelectionKey key) {
+    private void read(final SelectionKey key) {
         final Task readAndCalculateHashTask = new ReadAndCalculateHash(key);
         System.out.println("DEBUG : Something to read - Adding a task");
         taskQueueManager.addTask(readAndCalculateHashTask);
+//        try {
+//            readDataTest(key);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private void write(SelectionKey key, byte[] dataToWrite) {
@@ -74,4 +83,28 @@ public class ConnectionListenerThread implements Runnable {
         System.out.println("DEBUG : Something to write - Adding a task");
         taskQueueManager.addTask(writeTask);
     }
+
+
+//    public void readDataTest(final SelectionKey key) throws IOException, NoSuchAlgorithmException {
+//        SocketChannel channel = (SocketChannel) key.channel();
+//        ByteBuffer buffer = ByteBuffer.allocate(8192); //TODO :: Adjust size
+//        int numRead = -1;
+//        try {
+//            numRead = channel.read(buffer);
+//        }
+//        catch (IOException e) {
+//            System.out.println("Exception in reading data, Probably client closed connection ");
+//        }
+//        if (numRead == -1) {
+//            Socket socket = channel.socket();
+//            SocketAddress remoteAddr = socket.getRemoteSocketAddress();
+//            System.out.println("Connection closed by client: " + remoteAddr);
+//            channel.close();  //TODO ??
+//            key.cancel(); //TODO ??
+//        }
+//        byte[] data = new byte[numRead];
+//        System.arraycopy(buffer.array(), 0, data, 0, numRead);
+//        System.out.println("Got: " + new String(data, "US-ASCII"));
+//        key.interestOps(SelectionKey.OP_WRITE);
+//    }
 }
