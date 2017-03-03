@@ -43,9 +43,10 @@ public class ConnectionListenerThread implements Runnable {
                     this.accept(key);
                 } else if (key.isReadable()) {
                     this.read(key);
-                } else if (key.isWritable()) {
-                    this.write(key, new byte[1]); //TODO:: REMOVE??
                 }
+//                else if (key.isWritable()) {
+//                    this.write(key, new byte[1]); //TODO:: REMOVE??
+//                }
             }
         }
     }
@@ -66,10 +67,28 @@ public class ConnectionListenerThread implements Runnable {
     }
 
     private void read(final SelectionKey key) {
-        final Task readAndCalculateHashTask = new ReadAndCalculateHash(key);
-        System.out.println("DEBUG : Something to read - Adding a task");
-        taskQueueManager.addTask(readAndCalculateHashTask);
-//        try {
+        final SocketChannel channel = (SocketChannel) key.channel();
+        ByteBuffer buffer = ByteBuffer.allocate(8192);
+        int readBytes = 1;
+        buffer.clear();
+        try {
+            while(buffer.hasRemaining() && readBytes > 0) {
+                readBytes = channel.read(buffer);
+                if(readBytes == 8192) {
+                    System.out.println("DEBUG : Something to read - Adding a task");
+                    final Task readAndCalculateHashTask = new ReadAndCalculateHash(key, buffer);
+                    taskQueueManager.addTask(readAndCalculateHashTask);
+                    key.interestOps(SelectionKey.OP_WRITE);
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//        System.out.println("DEBUG : Something to read - Adding a task");
+//        taskQueueManager.addTask(readAndCalculateHashTask);
+////        try {
 //            readDataTest(key);
 //        } catch (IOException e) {
 //            e.printStackTrace();
