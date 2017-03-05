@@ -52,7 +52,6 @@ public class ClientMessageSender implements Runnable {
             }
             final String hashReceived = readMessageFromServer(client);
             if(hashReceived != null) {
-                ++numMessagesReceived;
                 final boolean removed = hashOfSendData.checkAndRemovedHash(hashReceived);
                 if(!removed) {
                     System.out.println("Warn : Hash from the server does not match");
@@ -96,10 +95,14 @@ public class ClientMessageSender implements Runnable {
     }
 
     private String readMessageFromServer(final SocketChannel channel) {
-        final ByteBuffer byteBuffer = ByteBuffer.allocate(8192);
+        final int expectedSize = 40;
+        final ByteBuffer byteBuffer = ByteBuffer.allocate(expectedSize);
         int numRead = -1;
         try {
             numRead = channel.read(byteBuffer);
+            if(numRead >= expectedSize-1) {
+                ++numMessagesReceived;
+            }
         } catch (final IOException ioe) {
             System.out.println("Error : IO Exception while reading from server - Exiting");
             System.exit(-1);
