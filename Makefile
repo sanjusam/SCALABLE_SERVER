@@ -13,8 +13,10 @@ clean:
 	@rm  -rf ./cs455/scaling/threadpool/ThreadPoolManager.class
 	@rm  -rf ./cs455/scaling/TaskOrchestrator/TaskDispatcherThread.class
 	@rm  -rf ./cs455/scaling/utils/ValidateCommandLine.class
+	@rm -rf ./cs455/scaling/utils/HostNameUtils.class
 	@rm  -rf ./cs455/scaling/server/ConnectionListenerThread.class
 	@rm  -rf ./cs455/scaling/server/Server.class
+	@rm  -rf ./cs455/scaling/client/HashHolder.class
 	@rm  -rf ./cs455/scaling/client/ClientMessageSender.class
 	@rm  -rf ./cs455/scaling/client/Client.class
 	
@@ -30,8 +32,10 @@ compile:
 	@javac -d . ./src/cs455/scaling/threadpool/ThreadPoolManager.java
 	@javac -d . ./src/cs455/scaling/TaskOrchestrator/TaskDispatcherThread.java
 	@javac -d . ./src/cs455/scaling/utils/ValidateCommandLine.java
+	@javac -d . ./src/cs455/scaling/utils/HostNameUtils.java
 	@javac -d . ./src/cs455/scaling/server/ConnectionListenerThread.java
 	@javac -d . ./src/cs455/scaling/server/Server.java
+	@javac -d . ./src/cs455/scaling/client/HashHolder.java
 	@javac -d . ./src/cs455/scaling/client/ClientMessageSender.java
 	@javac -d . ./src/cs455/scaling/client/Client.java
 	@echo -e '[INFO] Done Compiling Sources'

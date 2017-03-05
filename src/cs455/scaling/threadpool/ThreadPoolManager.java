@@ -27,10 +27,10 @@ public class ThreadPoolManager {
 
     public void startThreads() {
         for(int numThreads = 0; numThreads < maxThreadPoolSize; numThreads++ ) {
-            System.out.println("Starting Thread " + (numThreads + 1));  //TODO Start the worker threads
             final WorkerThread worker = new WorkerThread(new VoidTask());
             workerThreadList.add(worker);
             Thread workerThread = new Thread(worker);
+            workerThread.setName("Worker-" +numThreads + 1);
             workerThread.start();
         }
     }

@@ -22,25 +22,23 @@ public class WorkerThread implements Runnable {
                 continue;
             }
             try {
-                System.out.println("DEBUG : Performing the task " + myTask.getTaskType().toString() );
                 myTask.perform();
                 myTask = voidTask;
             } catch (IOException iOe) {
-                System.out.println("IO Exception Caught");
+                System.out.println("Warn : IO Exception Caught");
                 continue;
             } catch (NoSuchAlgorithmException nSAe) {
-                System.out.println("NoSuchAlgorithmException Exception Caught");
+                System.out.println("Warn : NoSuchAlgorithmException Exception Caught");
                 continue;
             }
         }
     }
 
-    public void setTask(final Task myTask) {
-        System.out.println("DEBUG : Setting Task to " + myTask.getTaskType().toString());
+    public synchronized void setTask(final Task myTask) {
         this.myTask = myTask;
     }
 
-    public Task getTask() {
+    public synchronized Task getTask() {
         return myTask;
     }
 

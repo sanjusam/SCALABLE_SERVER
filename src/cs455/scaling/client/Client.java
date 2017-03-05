@@ -1,9 +1,11 @@
 package cs455.scaling.client;
 
+import cs455.scaling.utils.HostNameUtils;
 import cs455.scaling.utils.ValidateCommandLine;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 
 public class Client {
@@ -29,10 +31,9 @@ public class Client {
         try {
             InetSocketAddress hostAddress = new InetSocketAddress(SERVER_NAME, SERVER_PORT);
             SocketChannel client = SocketChannel.open(hostAddress);
-            System.out.println("Client... started");
             return client;
         } catch (IOException iOe) {
-            System.out.println("IO Exception caught while starting client... Exiting");
+            System.out.println("Error : IO Exception caught while starting client - Exiting");
             System.exit(-1);
         }
         return null;
@@ -56,7 +57,7 @@ public class Client {
             SERVER_PORT = ValidateCommandLine.getNumber(args[1]);
         }
         if(SERVER_PORT <= 0) {
-            System.out.println("Cannot Start with the given server port: " + args[1]);
+            System.out.println("Error : Cannot Start with the given server port: " + args[1]);
             System.exit(-1);
         }
 
@@ -64,10 +65,20 @@ public class Client {
             MESSAGE_RATE = ValidateCommandLine.getNumber(args[2]);
         }
         if(MESSAGE_RATE <= 0) {
-                System.out.println("Cannot Start with the given Message rate : " + args[2]);
+                System.out.println("Error : Cannot Start with the given Message rate : " + args[2]);
                 System.exit(-1);
         }
 
-        SERVER_NAME = args[0];
+        if(args[0].equals("localhost")) { // get the hostname if localhost is passed.
+            try {
+                SERVER_NAME = HostNameUtils.getHostFqdn();
+            } catch (UnknownHostException e) {
+                System.out.println("Error : Server name passed as localhost, pass the server's name");
+                System.exit(-1);
+            }
+        } else {
+            SERVER_NAME = args[0];
+        }
+
     }
 }
