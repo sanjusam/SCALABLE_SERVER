@@ -1,16 +1,13 @@
 package cs455.scaling.TaskOrchestrator;
 
 import cs455.scaling.task.Task;
-import cs455.scaling.task.TaskType;
 import cs455.scaling.taskQueue.TaskQueueManager;
 import cs455.scaling.threadpool.ThreadPoolManager;
 import cs455.scaling.threadpool.WorkerThread;
 
-import java.util.List;
-
 public class TaskDispatcherThread implements  Runnable {
     private final TaskQueueManager taskQueueManager = TaskQueueManager.getInstance();
-    private final List<WorkerThread> workerThreadList = ThreadPoolManager.getInstance().getThreadList();
+    private final ThreadPoolManager threadPoolManager = ThreadPoolManager.getInstance();
 
     @Override
     public void run() {
@@ -18,22 +15,13 @@ public class TaskDispatcherThread implements  Runnable {
             final Task taskToDispatch = taskQueueManager.getTask();
             if (taskToDispatch != null) {
                 while (true) {
-                    final WorkerThread workerThread = getAvailableThread();
-                    if (workerThread != null) {
-                        workerThread.setTask(taskToDispatch); //Got a thread, dispatch the job.
+                    final WorkerThread availableWorkerThread = threadPoolManager.getAvailableThread();
+                    if (availableWorkerThread != null) {
+                        availableWorkerThread.setTask(taskToDispatch); //Got a thread, dispatch the job.
                         break;
                     }
                 }
             }
         }
-    }
-
-    private WorkerThread getAvailableThread() {
-        for(WorkerThread workerThread : workerThreadList) {
-            if(workerThread.getTask().getTaskType() == TaskType.VOID_TASK) {
-                return workerThread;
-            }
-        }
-        return null;
     }
 }

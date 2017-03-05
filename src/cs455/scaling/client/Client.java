@@ -23,15 +23,13 @@ public class Client {
             System.out.println("Error : Unable to establish connection to server " + SERVER_NAME + " " + SERVER_PORT);
             System.exit(-1);
         }
-
         client.startMessageSender(clientChannel);
     }
 
     private SocketChannel startClient() {
         try {
             InetSocketAddress hostAddress = new InetSocketAddress(SERVER_NAME, SERVER_PORT);
-            SocketChannel client = SocketChannel.open(hostAddress);
-            return client;
+            return SocketChannel.open(hostAddress);
         } catch (IOException iOe) {
             System.out.println("Error : IO Exception caught while starting client - Exiting");
             System.exit(-1);

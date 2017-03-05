@@ -2,13 +2,10 @@ package cs455.scaling.utils;
 
 public class ValidateCommandLine {
 
-    public static int INVAVLID_NUMBER = -999999999; //Random bad number
+    public static int INVALID_NUMBER = -999999999; //Random bad number
 
     public static boolean validateArgumentCount(final int neededArguments, final String[] args) {
-        if(args.length < neededArguments) {
-            return false;
-        }
-        return true;
+        return args.length >= neededArguments;
     }
 
     public static boolean isValidNumber(final String stringToCheckIfNumber) {
@@ -24,7 +21,7 @@ public class ValidateCommandLine {
         try {
             return Integer.parseInt(stringToCovertAsNumber);
         } catch (NumberFormatException nFe) {
-            return INVAVLID_NUMBER;
+            return INVALID_NUMBER;
         }
     }
 }

@@ -1,9 +1,7 @@
 package cs455.scaling.client;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
@@ -17,27 +15,24 @@ public class ClientMessageSender implements Runnable {
 
     private final int messageRate;
     private final SocketChannel client ;
-//    final String messages = "This is a initial message from Client";
-    private int cntr = 0;
-    final HashHolder hashOfSendData = new HashHolder();
+    private final HashHolder hashOfSendData = new HashHolder();
+    private long startTime ;
+    private int numMessagesSend ;
+    private int numMessagesReceived;
 
     ClientMessageSender(final int messageRate, final SocketChannel client) {
         this.messageRate = messageRate;
         this.client = client;
+        numMessagesSend = 0;
+        numMessagesReceived = 0;
+        startTime =0;
     }
 
     @Override
     public void run() {
-        int numMessagesSend = 0;
-        int numMessagesReceived = 0;
-        long startTime ;
-        long endTime;
-
         startTime = System.currentTimeMillis();
-        endTime = 0;
         while (true) {
             final byte[] payloadToSend = generateRandomByteArray();
-//            final byte[] payloadToSend =  messages.getBytes();
             final String hashAtClient = SHA1FromBytes(payloadToSend);
             hashOfSendData.addToLinkList(hashAtClient);
             final ByteBuffer bufferToSend = ByteBuffer.wrap(payloadToSend);
@@ -46,22 +41,10 @@ public class ClientMessageSender implements Runnable {
                 bufferToSend.clear();
                 ++ numMessagesSend;
             } catch (IOException iOe) {
-                System.out.println("Error : IO Exception while sending data to server - Exiting");
+                System.out.println("Info : Server closed connection - Exiting");
                 System.exit(-1);
             }
-            endTime = System.currentTimeMillis();
-            if((endTime - startTime) > 10000) {
-                //Print Stats
-                //[timestamp] Total Sent Count: x, Total Received Count: y
-                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                Date date = new Date();
-                System.out.println("[" + dateFormat.format(date) + "]"
-                        + " Total Sent Count: " +numMessagesSend
-                        + " , Total Received Count: " +numMessagesReceived);
-                startTime = endTime;
-                numMessagesReceived = 0;
-                numMessagesSend = 0;
-            }
+            printStats();
             try {
                 Thread.sleep(1000/messageRate);
             } catch (InterruptedException iE) {
@@ -72,16 +55,24 @@ public class ClientMessageSender implements Runnable {
                 ++numMessagesReceived;
                 final boolean removed = hashOfSendData.checkAndRemovedHash(hashReceived);
                 if(!removed) {
-                    System.out.println("Warn : Hash from the server does match");
-                }
-                //TODO :: Remove??
-                if(!hashAtClient.equals(hashReceived)) {
-                    System.out.println("Hash Matches");
-                } else {
-                    System.out.println("Warn : Hash from the server does match");
-                    System.exit(-1);  //TODO :: Remove, dont want the thread to exit if the has does not match
+                    System.out.println("Warn : Hash from the server does not match");
                 }
             }
+        }
+    }
+
+    private void printStats() {
+        final long endTime = System.currentTimeMillis();
+        if((endTime - startTime) > 10000) {
+            //[timestamp] Total Sent Count: x, Total Received Count: y
+            final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            System.out.println("[" + dateFormat.format(new Date() ) + "]"
+                    + " Total Sent Count: " +numMessagesSend
+                    + ", Total Received Count: " +numMessagesReceived);
+            startTime = endTime;
+            numMessagesReceived = 0;
+            numMessagesSend = 0;
+            System.out.flush();
         }
     }
 

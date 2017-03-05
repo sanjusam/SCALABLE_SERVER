@@ -21,7 +21,6 @@ public class TaskQueueManager {
 
     public synchronized Task getTask() {
         if(!taskQueue.isEmpty()) {
-//            return taskQueue.getFirst();
             return taskQueue.removeFirst();
         }
         return null;

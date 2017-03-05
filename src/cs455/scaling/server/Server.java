@@ -35,7 +35,8 @@ public class Server {
         serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
         startTaskProcessors();
         acceptConnections();
-        System.out.println("Info : Server started on " + HOST_NAME + ":" + PORT_NUMBER  + " Ctrl-C to stop.");
+        System.out.println("Info : Server started on " + HOST_NAME + ":" + PORT_NUMBER
+                            + "\nCtrl-C to stop.");
     }
 
     private void startTaskProcessors() {

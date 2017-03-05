@@ -26,10 +26,8 @@ public class WorkerThread implements Runnable {
                 myTask = voidTask;
             } catch (IOException iOe) {
                 System.out.println("Warn : IO Exception Caught");
-                continue;
             } catch (NoSuchAlgorithmException nSAe) {
                 System.out.println("Warn : NoSuchAlgorithmException Exception Caught");
-                continue;
             }
         }
     }

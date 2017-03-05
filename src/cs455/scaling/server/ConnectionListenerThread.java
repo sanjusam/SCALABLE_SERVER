@@ -53,7 +53,6 @@ public class ConnectionListenerThread implements Runnable {
 //                    this.write(key, new byte[1]); //TODO:: REMOVE??
 //                }
             }
-//            printStats();
         }
     }
 
@@ -131,6 +130,7 @@ public class ConnectionListenerThread implements Runnable {
                     + "Current Server Throughput: "+ ratePerSecond+" messages/s, Active Client Connections: " + numConnections);
             startTime = endTime;
             numMessages = 0;
+            System.out.flush();
         }
     }
 

@@ -1,5 +1,6 @@
 package cs455.scaling.threadpool;
 
+import cs455.scaling.task.TaskType;
 import cs455.scaling.task.VoidTask;
 
 import java.util.ArrayList;
@@ -35,8 +36,13 @@ public class ThreadPoolManager {
         }
     }
 
-    public List<WorkerThread> getThreadList() {
-        return workerThreadList;
+    public WorkerThread getAvailableThread() {
+        for(WorkerThread workerThread : workerThreadList) {
+            if(workerThread.getTask().getTaskType() == TaskType.VOID_TASK) {
+                return workerThread;
+            }
+        }
+        return null;
     }
 
 }
