@@ -7,6 +7,8 @@ clean:
 	@rm  -rf ./cs455/scaling/task/TaskType.class
 	@rm  -rf ./cs455/scaling/task/VoidTask.class
 	@rm  -rf ./cs455/scaling/task/WriteTask.class
+	@rm  -rf ./cs455/scaling/server/ConnectionTracker.class
+	@rm  -rf ./cs455/scaling/task/MessageTracker.class
 	@rm  -rf ./cs455/scaling/threadpool/WorkerThread.class
 	@rm  -rf ./cs455/scaling/task/ReadAndCalculateHash.class
 	@rm  -rf ./cs455/scaling/taskQueue/TaskQueueManager.class
@@ -25,6 +27,8 @@ compile:
 	@javac -d . ./src/cs455/scaling/task/TaskType.java
 	@javac -d . ./src/cs455/scaling/task/Task.java
 	@javac -d . ./src/cs455/scaling/taskQueue/TaskQueueManager.java
+	@javac -d . ./src/cs455/scaling/task/MessageTracker.java
+	@javac -d . ./src/cs455/scaling/server/ConnectionTracker.java
 	@javac -d . ./src/cs455/scaling/task/VoidTask.java
 	@javac -d . ./src/cs455/scaling/task/WriteTask.java
 	@javac -d . ./src/cs455/scaling/task/ReadAndCalculateHash.java

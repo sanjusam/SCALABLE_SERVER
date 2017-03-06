@@ -1,12 +1,12 @@
 package cs455.scaling.server;
 
+import cs455.scaling.task.MessageTracker;
 import cs455.scaling.task.ReadAndCalculateHash;
 import cs455.scaling.task.Task;
 import cs455.scaling.task.WriteTask;
 import cs455.scaling.taskQueue.TaskQueueManager;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -19,8 +19,10 @@ import java.util.Iterator;
 public class ConnectionListenerThread implements Runnable {
 
     private Selector selector;
-    private int numConnections;
-    private int numMessages = 0;
+//    private int numConnections;
+    private ConnectionTracker clientConnectionTracker = ConnectionTracker.getInstance();
+    private MessageTracker messageTracker = MessageTracker.getInstance();
+//    private int numMessages = 0;
     private long startTime;
     private TaskQueueManager taskQueueManager = TaskQueueManager.getInstance();
     ConnectionListenerThread(final Selector selector) {
@@ -49,9 +51,6 @@ public class ConnectionListenerThread implements Runnable {
                 } else if (key.isReadable()) {
                     this.read(key);
                 }
-//                else if (key.isWritable()) {
-//                    this.write(key, new byte[1]); //TODO:: REMOVE??
-//                }
             }
         }
     }
@@ -63,12 +62,21 @@ public class ConnectionListenerThread implements Runnable {
             SocketChannel channel = serverChannel.accept();
             channel.configureBlocking(false);
             channel.register(this.selector, SelectionKey.OP_READ);
-            ++numConnections;
+//            selector.wakeup();
+            clientConnectionTracker.incrementConnectionCount();
         } catch (IOException iOe) {
             System.out.println("Warn : IO Exception while accept");
         }
     }
 
+    private void read(final SelectionKey key) {
+        final SocketChannel channel = (SocketChannel) key.channel();
+        final Task readAndCalculateHashTask = new ReadAndCalculateHash(key, channel, messageTracker, clientConnectionTracker);
+        taskQueueManager.addTask(readAndCalculateHashTask);
+//        selector.wakeup();
+    }
+
+    /*
     private void read(final SelectionKey key) {
         final SocketChannel channel = (SocketChannel) key.channel();
         ByteBuffer buffer = ByteBuffer.allocate(8192);
@@ -78,9 +86,11 @@ public class ConnectionListenerThread implements Runnable {
             while(buffer.hasRemaining() && readBytes > 0) {
                 readBytes = channel.read(buffer);
                 if(readBytes == 8192) {
-                    final Task readAndCalculateHashTask = new ReadAndCalculateHash(key, buffer);
+//                    final Task readAndCalculateHashTask = new ReadAndCalculateHash(key, buffer);
+                    final Task readAndCalculateHashTask = new ReadAndCalculateHash(key, channel);
                     taskQueueManager.addTask(readAndCalculateHashTask);
                     key.interestOps(SelectionKey.OP_WRITE);
+                    selector.wakeup();
                     ++numMessages;
                     break;
                 } else if(readBytes == -1) {
@@ -114,6 +124,8 @@ public class ConnectionListenerThread implements Runnable {
 //        }
     }
 
+    */
+
     private void write(SelectionKey key, byte[] dataToWrite) {
         final Task writeTask = new WriteTask(key, dataToWrite);
         taskQueueManager.addTask(writeTask);
@@ -123,13 +135,13 @@ public class ConnectionListenerThread implements Runnable {
         //[timestamp] Current Server Throughput: x messages/s, Active Client Connections: y
         final long endTime = System.currentTimeMillis();
         if((endTime - startTime) > 5000) {
-            final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            final DateFormat dateFormat = new SimpleDateFormat("YYYY/MM/dd HH:mm:ss");
             final Date date = new Date();
-            final float ratePerSecond = numMessages/5;
+            final float ratePerSecond = messageTracker.getNumMessages()/5;
             System.out.println("[" + dateFormat.format(date) + "] "
-                    + "Current Server Throughput: "+ ratePerSecond+" messages/s, Active Client Connections: " + numConnections);
+                    + "Current Server Throughput: "+ ratePerSecond+" messages/s, Active Client Connections: " + clientConnectionTracker.getNumConnections());
             startTime = endTime;
-            numMessages = 0;
+            messageTracker.clearMessageCounter();
             System.out.flush();
         }
     }
