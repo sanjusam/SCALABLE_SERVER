@@ -27,6 +27,7 @@ public class Client {
         }
         client.startMessageSender(clientChannel);
         client.startStatusPrinterThread();
+        client.startDataReceiver(clientChannel);
 
     }
 
@@ -47,11 +48,19 @@ public class Client {
         clientStatusPrinterThread.setName("Client Status Printer");
         clientStatusPrinterThread.start();
     }
+
     private void startMessageSender(final SocketChannel client) {
         final ClientMainThread clientMainThread = new ClientMainThread(MESSAGE_RATE, client, clientMessageTracker);
         final Thread clientMessageSenderThread = new Thread(clientMainThread);
         clientMessageSenderThread.setName("Client Node");
         clientMessageSenderThread.start();
+    }
+
+    private void startDataReceiver(final SocketChannel clientSocketChannel) {
+        final ClientDataReceiverThread clientDataReceiver = new ClientDataReceiverThread(clientSocketChannel, clientMessageTracker);
+        final Thread clientDataReceiverThread = new Thread(clientDataReceiver);
+        clientDataReceiverThread.setName("Client Data Receiver");
+        clientDataReceiverThread.start();
     }
 
     private static void validateInputArguments(final String[] args) {

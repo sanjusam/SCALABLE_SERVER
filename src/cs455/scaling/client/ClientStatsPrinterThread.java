@@ -29,7 +29,7 @@ public class ClientStatsPrinterThread implements Runnable{
         final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         System.out.println("[" + dateFormat.format(new Date() ) + "]"
             + " Total Sent Count: " + messageTracker.getNumSendMessage()
-            + ", Total Received Count: " + messageTracker.getNumMessgesReceived());
+            + ", Total Received Count: " + messageTracker.getNumMessagesReceived());
             System.out.flush();
     }
 }

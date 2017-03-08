@@ -8,19 +8,25 @@ public class ClientMessageTracker {
     }
 
     private int numMessagesSend = 0;
-    private int numMessgesReceived = 0;
+    private int numMessagesReceived = 0;
+    private boolean sendStarted = true;
     private final Object LOCK_SEND = new Object();
     private final Object LOCK_REC = new Object();
+
+    boolean sendStarted() {
+        return sendStarted;
+    }
 
     void incrementSendMessage() {
         synchronized (LOCK_SEND) {
             ++ numMessagesSend;
         }
+        sendStarted = true;
     }
 
     void incrementReceivedMessage() {
         synchronized (LOCK_REC) {
-            ++ numMessgesReceived;
+            ++numMessagesReceived;
         }
     }
 
@@ -32,10 +38,10 @@ public class ClientMessageTracker {
         }
     }
 
-    int getNumMessgesReceived() {
+    int getNumMessagesReceived() {
         synchronized (LOCK_REC) {
-            final int temp = numMessgesReceived;
-            numMessgesReceived = 0;
+            final int temp = numMessagesReceived;
+            numMessagesReceived = 0;
             return temp;
         }
     }

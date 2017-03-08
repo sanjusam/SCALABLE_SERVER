@@ -6,16 +6,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Random;
 
 public class ClientMainThread implements Runnable {
 
     private final int messageRate;
     private final SocketChannel client ;
-    private final HashHolder hashOfSendData = new HashHolder();
+    private final HashHolder hashOfSendData = HashHolder.getInstance();
     private final ClientMessageTracker messageTracker;
 
     ClientMainThread(final int messageRate, final SocketChannel client, final ClientMessageTracker messageTracker) {
@@ -29,7 +26,7 @@ public class ClientMainThread implements Runnable {
         while (true) {
             final byte[] payloadToSend = generateRandomByteArray();  //Generated the random array of bytes.
             final String hashAtClient = SHA1FromBytes(payloadToSend);
-            hashOfSendData.addToLinkList(hashAtClient);  //add localy generated has to the link list.
+            hashOfSendData.addToLinkList(hashAtClient);  //add locally generated has to the link list.
             final ByteBuffer bufferToSend = ByteBuffer.wrap(payloadToSend);
             try {
                 this.client.write(bufferToSend);  //Send the data to the server
@@ -44,15 +41,15 @@ public class ClientMainThread implements Runnable {
             } catch (final InterruptedException iE) {
                 System.out.println("Info : Caught InterruptedException while Thread.sleep");
             }
-            final String hashReceived = readMessageFromServer(client);
+            /*final String hashReceived = readMessageFromServer(client);
             if(hashReceived != null) {
                 final boolean removed = hashOfSendData.checkAndRemovedHash(hashReceived);
                 if(!removed) {
                     System.out.println("Warn : Hash from the server does not match");
                 }
             } else {
-                System.out.println("Warn : Hash from the server does not match - HASH received is null");
-            }
+                System.out.println("Warn : Hash from the server is null  - Server Exited");
+            } */
         }
     }
 
@@ -75,6 +72,7 @@ public class ClientMainThread implements Runnable {
         return hashInt.toString(16);
     }
 
+    /*
     private String readMessageFromServer(final SocketChannel channel) {
         final int expectedSize = 40;
         final ByteBuffer byteBuffer = ByteBuffer.allocate(expectedSize);
@@ -98,5 +96,5 @@ public class ClientMainThread implements Runnable {
         } else {
             return null;
         }
-    }
+    } */
 }
