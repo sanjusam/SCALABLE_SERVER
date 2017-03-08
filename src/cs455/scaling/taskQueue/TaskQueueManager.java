@@ -13,17 +13,14 @@ public class TaskQueueManager {
     private TaskQueueManager() {
 
     }
-    private final Queue<Task> taskQueue = new LinkedList<>();
+    private final Queue<Task> taskQueue = new LinkedList<>();  //The place holder for the task queues.  All created task gets added here and  would be popped out for execution.
 
     public synchronized void addTask(final Task task) {
         taskQueue.add(task);
-//        System.out.println("SANJU DEBUG : Added task - count is , " + taskQueue.size() + "  " + task.getTaskType());
     }
 
     public synchronized Task getTask() {
-        if(!taskQueue.isEmpty()) {
-            final int newSize = taskQueue.size() -1;
-//            System.out.println("SANJU DEBUG : Removed task - count is , " + newSize );
+        if(!taskQueue.isEmpty()) {  // Returns the next work in the queue to be assigned to a worker.
             return taskQueue.remove();
         }
         return null;

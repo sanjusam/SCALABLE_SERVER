@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
-public class ClientMessageSender implements Runnable {
+public class ClientMainThread implements Runnable {
 
     private final int messageRate;
     private final SocketChannel client ;
@@ -20,7 +20,7 @@ public class ClientMessageSender implements Runnable {
     private int numMessagesSend ;
     private int numMessagesReceived;
 
-    ClientMessageSender(final int messageRate, final SocketChannel client) {
+    ClientMainThread(final int messageRate, final SocketChannel client) {
         this.messageRate = messageRate;
         this.client = client;
         numMessagesSend = 0;
@@ -32,22 +32,22 @@ public class ClientMessageSender implements Runnable {
     public void run() {
         startTime = System.currentTimeMillis();
         while (true) {
-            final byte[] payloadToSend = generateRandomByteArray();
+            final byte[] payloadToSend = generateRandomByteArray();  //Generated the random array of bytes.
             final String hashAtClient = SHA1FromBytes(payloadToSend);
-            hashOfSendData.addToLinkList(hashAtClient);
+            hashOfSendData.addToLinkList(hashAtClient);  //add localy generated has to the link list.
             final ByteBuffer bufferToSend = ByteBuffer.wrap(payloadToSend);
             try {
-                this.client.write(bufferToSend);
+                this.client.write(bufferToSend);  //Send the data to the server
                 bufferToSend.clear();
                 ++ numMessagesSend;
-            } catch (IOException iOe) {
+            } catch (final IOException iOe) {
                 System.out.println("Info : Server closed connection - Exiting");
                 System.exit(-1);
             }
             printStats();
             try {
                 Thread.sleep(1000/messageRate);
-            } catch (InterruptedException iE) {
+            } catch (final InterruptedException iE) {
                 System.out.println("Info : Caught InterruptedException while Thread.sleep");
             }
             final String hashReceived = readMessageFromServer(client);
@@ -81,16 +81,16 @@ public class ClientMessageSender implements Runnable {
         return payLoadToSend;
     }
 
-    private String SHA1FromBytes(byte[] data)  {
+    private String SHA1FromBytes(final byte[] data)  {
         MessageDigest digest = null;
         try {
             digest = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException nSAe) {
+        } catch (final NoSuchAlgorithmException nSAe) {
             nSAe.printStackTrace();
         }
 
-        byte[] hash = digest.digest(data);
-        BigInteger hashInt = new BigInteger(1, hash);
+        final byte[] hash = digest.digest(data);
+        final BigInteger hashInt = new BigInteger(1, hash);
         return hashInt.toString(16);
     }
 
@@ -111,7 +111,7 @@ public class ClientMessageSender implements Runnable {
             System.exit(-1);
         }
         if(numRead > 0) {
-            byte[] dataRead = new byte[numRead];
+            final byte[] dataRead = new byte[numRead];
             System.arraycopy(byteBuffer.array(), 0, dataRead, 0, numRead);
             return new String(dataRead);
         } else {

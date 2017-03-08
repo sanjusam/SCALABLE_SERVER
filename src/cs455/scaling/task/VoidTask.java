@@ -6,7 +6,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class VoidTask implements  Task {
 
-    private final TaskType taskType = TaskType.VOID_TASK;
+    private final TaskType taskType = TaskType.VOID_TASK;  //This is a place holder TASK, to denote that a thread is available.  Any thread, holding with job denotes that its availabe for the next job.
 
     @Override
     public TaskType getTaskType() {

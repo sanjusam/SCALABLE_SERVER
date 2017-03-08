@@ -22,47 +22,53 @@ public class Server {
     final MessageTracker messageTracker = MessageTracker.getInstance();
 
 
-    public static void main (String args[]) throws IOException {
+    public static void main (final String[] args) throws IOException {
 
         validateCommandLine(args);
         initThreadPools();
         final Server server = new Server();
-        server.startServer();
+        server.startServer();  //Start the Server.
     }
 
     private void startServer() throws IOException {
         final String HOST_NAME = HostNameUtils.getHostFqdn();
         this.selector = Selector.open();
-        ServerSocketChannel serverChannel = ServerSocketChannel.open();
+        final ServerSocketChannel serverChannel = ServerSocketChannel.open();
         serverChannel.configureBlocking(false);
-        InetSocketAddress listenAddr = new InetSocketAddress(HOST_NAME, PORT_NUMBER);
+        final InetSocketAddress listenAddr = new InetSocketAddress(HOST_NAME, PORT_NUMBER);
         serverChannel.socket().bind(listenAddr);
         serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
-        startTaskProcessors();
+        startTaskProcessors();  //Starts all the Worker Thread.
         acceptConnections();
         startStatsPrinter();
         System.out.println("Info : Server started on " + HOST_NAME + ":" + PORT_NUMBER
                             + "\nCtrl-C to stop.");
     }
 
-    private void startStatsPrinter() {
+    private void startStatsPrinter() { //The Task printer thread, responsible fot printing stats.
         final ServerStatsPrinterThread statsPrinter = new ServerStatsPrinterThread(messageTracker, clientConnectionTracker);
         final Thread statusPrinterThread = new Thread(statsPrinter);
         statusPrinterThread.setName("Server Status Printer Thread");
         statusPrinterThread.start();
     }
 
-    private void startTaskProcessors() {
+    private void startTaskProcessors() {  //The worker manager thread
         final TaskDispatcherThread taskDispatcherThread = new TaskDispatcherThread();
         final Thread taskProcessorThread = new Thread(taskDispatcherThread);
         taskProcessorThread.setName("Task Dispatcher Thread");
         taskProcessorThread.start();
     }
-    private void acceptConnections() throws IOException {
+    private void acceptConnections() throws IOException {  //the main thread, which accepts connections from the clients
         final ConnectionListenerThread connectionListenerThread = new ConnectionListenerThread(selector, clientConnectionTracker, messageTracker);
         final Thread connectionListener = new Thread(connectionListenerThread);
         connectionListener.setName("Connection Listener Thread");
         connectionListener.start();
+    }
+
+    private static void initThreadPools() {  //All the worker threads are started,  with the given size.
+        final ThreadPoolManager threadPoolManager = ThreadPoolManager.getInstance();
+        threadPoolManager.setMaxThreadPoolSize(THREAD_POOL_SIZE);
+        threadPoolManager.startThreads();
     }
 
     private static void validateCommandLine(final String[] args) {
@@ -88,9 +94,4 @@ public class Server {
         }
     }
 
-    private static void initThreadPools() {
-        final ThreadPoolManager threadPoolManager = ThreadPoolManager.getInstance();
-        threadPoolManager.setMaxThreadPoolSize(THREAD_POOL_SIZE);
-        threadPoolManager.startThreads();
-    }
 }

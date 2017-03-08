@@ -8,15 +8,14 @@ public class MessageTracker {
         return INSTANCE;
     }
 
-    public synchronized void incrementMessageProcessed() {
+    public synchronized void incrementMessageProcessed() {  //This is a sum of all read from client and written to client messages.
         ++numMessages;
     }
 
-    public int getNumMessagesProcessed() {
-        return numMessages;
+    public synchronized float getNumMessagesProcessedAndClearCounter() {
+        final int tempMsgCount = numMessages;  // Since num messages is all read and writes,  send back the average for through put and clear counters.
+        numMessages = 0;
+        return tempMsgCount/2;
     }
 
-    public void clearMessageCounter() {
-        numMessages = 0;
-    }
 }

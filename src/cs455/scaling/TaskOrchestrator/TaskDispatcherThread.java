@@ -12,13 +12,13 @@ public class TaskDispatcherThread implements  Runnable {
     @Override
     public void run() {
         while (true) {
-            final Task taskToDispatch = taskQueueManager.getTask();
+            final Task taskToDispatch = taskQueueManager.getTask();  //Gets the next works
             if (taskToDispatch != null) {
-                while (true) {
-                    final WorkerThread availableWorkerThread = threadPoolManager.getAvailableThread();
+                while (true) {  // Waits until a worker becomes available.
+                    final WorkerThread availableWorkerThread = threadPoolManager.getAvailableThread();   //Once worker is available, assigns the work to the worker.
                     if (availableWorkerThread != null) {
                         availableWorkerThread.setTask(taskToDispatch); //Got a thread, dispatch the job.
-                        break;
+                        break;  //Breaks for the work-worker assignment loop and again goes back to the main loop to look for the new jobs in the queue and assign it to the next worker.
                     }
                 }
             }

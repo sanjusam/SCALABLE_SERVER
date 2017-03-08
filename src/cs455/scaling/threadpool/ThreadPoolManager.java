@@ -11,7 +11,7 @@ public class ThreadPoolManager {
 
     private List<WorkerThread> workerThreadList;
 
-    private static ThreadPoolManager INSTANCE = new ThreadPoolManager();
+    private static final ThreadPoolManager INSTANCE = new ThreadPoolManager();
     public static synchronized ThreadPoolManager getInstance(){
         return INSTANCE;
     }
@@ -30,14 +30,14 @@ public class ThreadPoolManager {
         for(int numThreads = 0; numThreads < maxThreadPoolSize; numThreads++ ) {
             final WorkerThread worker = new WorkerThread(new VoidTask());
             workerThreadList.add(worker);
-            Thread workerThread = new Thread(worker);
+            final Thread workerThread = new Thread(worker);
             workerThread.setName("Worker-" +numThreads + 1);
             workerThread.start();
         }
     }
 
-    public WorkerThread getAvailableThread() {
-        for(WorkerThread workerThread : workerThreadList) {
+    public WorkerThread getAvailableThread() {  //The Thread is defined to be available (back in the pool), if it has a void task.
+        for(WorkerThread workerThread : workerThreadList) {  // Walks through the pool and checks if a thread has a VOID task.  If yes, its an available worker - returns the reference
             if(workerThread.getTask().getTaskType() == TaskType.VOID_TASK) {
                 return workerThread;
             }

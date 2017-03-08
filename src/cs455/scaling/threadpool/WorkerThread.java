@@ -22,8 +22,8 @@ public class WorkerThread implements Runnable {
                 continue;
             }
             try {
-                myTask.perform();
-                myTask = voidTask;
+                myTask.perform();// This is the  where the worker thread actually does the work.  If not a void task, it has something to do.  Either READ-HASH or WRITE.
+                myTask = voidTask;  // As soon as the work is completed, the worker, itself declares as its free.
             } catch (IOException iOe) {
                 System.out.println("Warn : IO Exception Caught");
             } catch (NoSuchAlgorithmException nSAe) {

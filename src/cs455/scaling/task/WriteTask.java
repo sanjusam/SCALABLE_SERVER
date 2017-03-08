@@ -8,7 +8,7 @@ import java.nio.channels.SocketChannel;
 public class WriteTask implements Task {
     private final TaskType taskType = TaskType.WRITE;
     private SelectionKey key;
-    private byte[] dataToWrite;
+    private final byte[] dataToWrite;
     private final MessageTracker messageTracker;
 
     public WriteTask(final SelectionKey key, final byte[] dataToWrite, final MessageTracker messageTracker) {
@@ -23,10 +23,10 @@ public class WriteTask implements Task {
     }
 
     @Override
-    public void perform() throws IOException {
-        SocketChannel channel = (SocketChannel) key.channel();
+    public void perform() throws IOException {  //Details of the WRITE task.
+        final SocketChannel channel = (SocketChannel) key.channel();
         channel.write(ByteBuffer.wrap(dataToWrite));
-        messageTracker.incrementMessageProcessed();
+        messageTracker.incrementMessageProcessed();  //Increment message processed counter for printing stats
         key.interestOps(SelectionKey.OP_READ);
     }
 

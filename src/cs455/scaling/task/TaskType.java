@@ -1,6 +1,6 @@
 package cs455.scaling.task;
 
-public enum TaskType {
+public enum TaskType {  //All the task, are defined here, scope for more task
     VOID_TASK(0, "default"),
     READ_COMPUTE(1,"read-compute-hash"),
     WRITE(2, "write");
