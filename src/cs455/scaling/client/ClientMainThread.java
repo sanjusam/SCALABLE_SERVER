@@ -16,21 +16,16 @@ public class ClientMainThread implements Runnable {
     private final int messageRate;
     private final SocketChannel client ;
     private final HashHolder hashOfSendData = new HashHolder();
-    private long startTime ;
-    private int numMessagesSend ;
-    private int numMessagesReceived;
+    private final ClientMessageTracker messageTracker;
 
-    ClientMainThread(final int messageRate, final SocketChannel client) {
+    ClientMainThread(final int messageRate, final SocketChannel client, final ClientMessageTracker messageTracker) {
         this.messageRate = messageRate;
         this.client = client;
-        numMessagesSend = 0;
-        numMessagesReceived = 0;
-        startTime =0;
+        this.messageTracker = messageTracker;
     }
 
     @Override
     public void run() {
-        startTime = System.currentTimeMillis();
         while (true) {
             final byte[] payloadToSend = generateRandomByteArray();  //Generated the random array of bytes.
             final String hashAtClient = SHA1FromBytes(payloadToSend);
@@ -39,12 +34,11 @@ public class ClientMainThread implements Runnable {
             try {
                 this.client.write(bufferToSend);  //Send the data to the server
                 bufferToSend.clear();
-                ++ numMessagesSend;
+                messageTracker.incrementSendMessage();
             } catch (final IOException iOe) {
                 System.out.println("Info : Server closed connection - Exiting");
                 System.exit(-1);
             }
-            printStats();
             try {
                 Thread.sleep(1000/messageRate);
             } catch (final InterruptedException iE) {
@@ -59,21 +53,6 @@ public class ClientMainThread implements Runnable {
             } else {
                 System.out.println("Warn : Hash from the server does not match - HASH received is null");
             }
-        }
-    }
-
-    private void printStats() {
-        final long endTime = System.currentTimeMillis();
-        if((endTime - startTime) > 10000) {
-            //[timestamp] Total Sent Count: x, Total Received Count: y
-            final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-            System.out.println("[" + dateFormat.format(new Date() ) + "]"
-                    + " Total Sent Count: " +numMessagesSend
-                    + ", Total Received Count: " +numMessagesReceived);
-            startTime = endTime;
-            numMessagesReceived = 0;
-            numMessagesSend = 0;
-            System.out.flush();
         }
     }
 
@@ -103,7 +82,7 @@ public class ClientMainThread implements Runnable {
         try {
             numRead = channel.read(byteBuffer);
             if(numRead >= expectedSize-1) {
-                ++numMessagesReceived;
+                messageTracker.incrementReceivedMessage();
             }
         } catch (final IOException ioe) {
             System.out.println("Error : IO Exception while reading from server - Exiting");

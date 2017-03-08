@@ -19,6 +19,8 @@ clean:
 	@rm  -rf ./cs455/scaling/server/ConnectionListenerThread.class
 	@rm  -rf ./cs455/scaling/server/ServerStatsPrinterThread.class
 	@rm  -rf ./cs455/scaling/server/Server.class
+	@rm  -rf ./cs455/scaling/client/ClientMessageTracker.class
+	@rm  -rf ./cs455/scaling/client/ClientStatusPrinterThread.class
 	@rm  -rf ./cs455/scaling/client/HashHolder.class
 	@rm  -rf ./cs455/scaling/client/ClientMainThread.class
 	@rm  -rf ./cs455/scaling/client/Client.class
@@ -41,6 +43,8 @@ compile:
 	@javac -d . ./src/cs455/scaling/server/ConnectionListenerThread.java
 	@javac -d . ./src/cs455/scaling/server/ServerStatsPrinterThread.java
 	@javac -d . ./src/cs455/scaling/server/Server.java
+	@javac -d . ./src/cs455/scaling/client/ClientMessageTracker.java
+	@javac -d . ./src/cs455/scaling/client/ClientStatsPrinterThread.java
 	@javac -d . ./src/cs455/scaling/client/HashHolder.java
 	@javac -d . ./src/cs455/scaling/client/ClientMainThread.java
 	@javac -d . ./src/cs455/scaling/client/Client.java

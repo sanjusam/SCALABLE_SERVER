@@ -13,6 +13,8 @@ public class Client {
     private static int SERVER_PORT = 0;
     private static String SERVER_NAME ;
 
+    private final ClientMessageTracker clientMessageTracker = ClientMessageTracker.getInstance();
+
     public static void main(final String[] args ) {
 
         validateInputArguments(args);
@@ -24,6 +26,8 @@ public class Client {
             System.exit(-1);
         }
         client.startMessageSender(clientChannel);
+        client.startStatusPrinterThread();
+
     }
 
     private SocketChannel startClient() {
@@ -37,8 +41,14 @@ public class Client {
         return null;
     }
 
+    private void startStatusPrinterThread() {
+        final ClientStatsPrinterThread clientStatsPrinter = new ClientStatsPrinterThread(clientMessageTracker);
+        final Thread clientStatusPrinterThread = new Thread(clientStatsPrinter);
+        clientStatusPrinterThread.setName("Client Status Printer");
+        clientStatusPrinterThread.start();
+    }
     private void startMessageSender(final SocketChannel client) {
-        final ClientMainThread clientMainThread = new ClientMainThread(MESSAGE_RATE, client);
+        final ClientMainThread clientMainThread = new ClientMainThread(MESSAGE_RATE, client, clientMessageTracker);
         final Thread clientMessageSenderThread = new Thread(clientMainThread);
         clientMessageSenderThread.setName("Client Node");
         clientMessageSenderThread.start();
