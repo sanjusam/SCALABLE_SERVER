@@ -31,7 +31,7 @@ public class ThreadPoolManager {
             final WorkerThread worker = new WorkerThread(new VoidTask());
             workerThreadList.add(worker);
             final Thread workerThread = new Thread(worker);
-            workerThread.setName("Worker-" +numThreads + 1);
+            workerThread.setName("Worker-" +(numThreads + 1));
             workerThread.start();
         }
     }
