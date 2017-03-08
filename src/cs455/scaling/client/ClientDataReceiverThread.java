@@ -17,6 +17,12 @@ public class ClientDataReceiverThread implements Runnable {
     @Override
     public void run() {
         while (true) {
+            if(messageTracker.sendStarted()) {  //Wait until the first message is send from the client.
+                break;
+            }
+        }
+
+        while (true) {
             final String hashReceived = readMessageFromServer();
             if (hashReceived != null) {
                 final boolean removed = hashOfSendData.checkAndRemovedHash(hashReceived);
@@ -24,7 +30,7 @@ public class ClientDataReceiverThread implements Runnable {
                     System.out.println("Warn : Hash from the server does not match");
                 }
             } else {
-                System.out.println("Warn : Hash from the server is null - Server Exited");
+                System.out.println("Info : Hash from the server is null - Server Exited");
             }
         }
     }
