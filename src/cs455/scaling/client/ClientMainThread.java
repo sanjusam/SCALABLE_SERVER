@@ -56,6 +56,8 @@ public class ClientMainThread implements Runnable {
                 if(!removed) {
                     System.out.println("Warn : Hash from the server does not match");
                 }
+            } else {
+                System.out.println("Warn : Hash from the server does not match - HASH received is null");
             }
         }
     }
