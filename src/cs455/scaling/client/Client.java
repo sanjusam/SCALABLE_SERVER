@@ -40,13 +40,14 @@ public class Client {
     private void startMessageSender(final SocketChannel client) {
         ClientMessageSender clientMessageSender = new ClientMessageSender(MESSAGE_RATE, client);
         Thread clientMessageSenderThread = new Thread(clientMessageSender);
+        clientMessageSenderThread.setName("Client Node");
         clientMessageSenderThread.start();
     }
 
     private static void validateInputArguments(String[] args) {
         final boolean validArgs = ValidateCommandLine.validateArgumentCount(3, args); // Three arguments needed
         if(!validArgs) {
-            System.out.println("Invalid Arguments: Valid arguments are server-host, server-port and messaging rate");
+            System.out.println("Error : Invalid Arguments, Valid arguments are server-host, server-port and messaging rate");
             System.out.flush();
             System.exit(-1);
         }

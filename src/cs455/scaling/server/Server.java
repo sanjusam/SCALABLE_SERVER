@@ -1,6 +1,7 @@
 package cs455.scaling.server;
 
 import cs455.scaling.TaskOrchestrator.TaskDispatcherThread;
+import cs455.scaling.task.MessageTracker;
 import cs455.scaling.threadpool.ThreadPoolManager;
 import cs455.scaling.utils.HostNameUtils;
 import cs455.scaling.utils.ValidateCommandLine;
@@ -16,6 +17,10 @@ public class Server {
     private static int THREAD_POOL_SIZE = 0;
     private static int PORT_NUMBER = 0;
     private Selector selector;
+
+    final ConnectionTracker clientConnectionTracker = ConnectionTracker.getInstance();
+    final MessageTracker messageTracker = MessageTracker.getInstance();
+
 
     public static void main (String args[]) throws IOException {
 
@@ -35,18 +40,28 @@ public class Server {
         serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
         startTaskProcessors();
         acceptConnections();
+        startStatsPrinter();
         System.out.println("Info : Server started on " + HOST_NAME + ":" + PORT_NUMBER
                             + "\nCtrl-C to stop.");
     }
 
+    private void startStatsPrinter() {
+        final ServerStatsPrinterThread statsPrinter = new ServerStatsPrinterThread(messageTracker, clientConnectionTracker);
+        final Thread statusPrinterThread = new Thread(statsPrinter);
+        statusPrinterThread.setName("Server Status Printer Thread");
+        statusPrinterThread.start();
+    }
+
     private void startTaskProcessors() {
-        TaskDispatcherThread taskDispatcherThread = new TaskDispatcherThread();
-        Thread taskProcessorThread = new Thread(taskDispatcherThread);
+        final TaskDispatcherThread taskDispatcherThread = new TaskDispatcherThread();
+        final Thread taskProcessorThread = new Thread(taskDispatcherThread);
+        taskProcessorThread.setName("Task Dispatcher Thread");
         taskProcessorThread.start();
     }
     private void acceptConnections() throws IOException {
-        final ConnectionListenerThread connectionListenerThread = new ConnectionListenerThread(selector);
-        Thread connectionListener = new Thread(connectionListenerThread);
+        final ConnectionListenerThread connectionListenerThread = new ConnectionListenerThread(selector, clientConnectionTracker, messageTracker);
+        final Thread connectionListener = new Thread(connectionListenerThread);
+        connectionListener.setName("Connection Listener Thread");
         connectionListener.start();
     }
 

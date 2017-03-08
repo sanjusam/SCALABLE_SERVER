@@ -8,11 +8,11 @@ public class MessageTracker {
         return INSTANCE;
     }
 
-    public synchronized void incrementMessageReceived() {
+    public synchronized void incrementMessageProcessed() {
         ++numMessages;
     }
 
-    public int getNumMessages() {
+    public int getNumMessagesProcessed() {
         return numMessages;
     }
 

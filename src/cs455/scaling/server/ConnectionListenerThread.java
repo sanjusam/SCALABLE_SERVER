@@ -19,21 +19,22 @@ import java.util.Iterator;
 public class ConnectionListenerThread implements Runnable {
 
     private Selector selector;
-//    private int numConnections;
-    private ConnectionTracker clientConnectionTracker = ConnectionTracker.getInstance();
-    private MessageTracker messageTracker = MessageTracker.getInstance();
-//    private int numMessages = 0;
+    private final ConnectionTracker clientConnectionTracker ;
+    private final MessageTracker messageTracker ;
     private long startTime;
     private TaskQueueManager taskQueueManager = TaskQueueManager.getInstance();
-    ConnectionListenerThread(final Selector selector) {
+
+    ConnectionListenerThread(final Selector selector, final ConnectionTracker clientConnectionTracker, final MessageTracker messageTracker) {
         this.selector = selector;
+        this.clientConnectionTracker = clientConnectionTracker;
+        this.messageTracker = messageTracker;
     }
 
     @Override
     public void run() {
         startTime = System.currentTimeMillis();
         while (true) {
-            printStats();
+//            printStats();
             try {
                 this.selector.select();
             } catch (IOException iOe) {
@@ -48,7 +49,7 @@ public class ConnectionListenerThread implements Runnable {
                     continue;
                 } else if (key.isAcceptable()) {
                     this.accept(key);
-                } else if (key.isReadable()) {
+                } else if (key.isReadable() && (key.attachment() == null)) {
                     this.read(key);
                 }
             }
@@ -61,8 +62,11 @@ public class ConnectionListenerThread implements Runnable {
         try {
             SocketChannel channel = serverChannel.accept();
             channel.configureBlocking(false);
-            channel.register(this.selector, SelectionKey.OP_READ);
+//            channel.register(this.selector, SelectionKey.OP_READ);  TODO:: Temporarly removed and added below
 //            selector.wakeup();
+            if(channel.finishConnect()) {
+                channel.register(this.selector, SelectionKey.OP_READ);
+            }
             clientConnectionTracker.incrementConnectionCount();
         } catch (IOException iOe) {
             System.out.println("Warn : IO Exception while accept");
@@ -70,9 +74,12 @@ public class ConnectionListenerThread implements Runnable {
     }
 
     private void read(final SelectionKey key) {
+        final Object attachment = new Object();
         final SocketChannel channel = (SocketChannel) key.channel();
         final Task readAndCalculateHashTask = new ReadAndCalculateHash(key, channel, messageTracker, clientConnectionTracker);
+        key.attach(attachment);
         taskQueueManager.addTask(readAndCalculateHashTask);
+//        key.interestOps(SelectionKey.OP_WRITE);
 //        selector.wakeup();
     }
 
@@ -127,7 +134,7 @@ public class ConnectionListenerThread implements Runnable {
     */
 
     private void write(SelectionKey key, byte[] dataToWrite) {
-        final Task writeTask = new WriteTask(key, dataToWrite);
+        final Task writeTask = new WriteTask(key, dataToWrite, messageTracker);
         taskQueueManager.addTask(writeTask);
     }
 
@@ -137,7 +144,7 @@ public class ConnectionListenerThread implements Runnable {
         if((endTime - startTime) > 5000) {
             final DateFormat dateFormat = new SimpleDateFormat("YYYY/MM/dd HH:mm:ss");
             final Date date = new Date();
-            final float ratePerSecond = messageTracker.getNumMessages()/5;
+            final float ratePerSecond = messageTracker.getNumMessagesProcessed()/5;
             System.out.println("[" + dateFormat.format(date) + "] "
                     + "Current Server Throughput: "+ ratePerSecond+" messages/s, Active Client Connections: " + clientConnectionTracker.getNumConnections());
             startTime = endTime;

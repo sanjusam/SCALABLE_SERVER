@@ -106,7 +106,7 @@ public class ClientMessageSender implements Runnable {
         } catch (final IOException ioe) {
             System.out.println("Error : IO Exception while reading from server - Exiting");
             System.exit(-1);
-        } catch (NegativeArraySizeException nASE) {
+        } catch (final NegativeArraySizeException nASE) {
             System.out.println("Info : Server Stopped Sending messages - Exiting");
             System.exit(-1);
         }

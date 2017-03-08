@@ -9,10 +9,12 @@ public class WriteTask implements Task {
     private final TaskType taskType = TaskType.WRITE;
     private SelectionKey key;
     private byte[] dataToWrite;
+    private final MessageTracker messageTracker;
 
-    public WriteTask(final SelectionKey key, final byte[] dataToWrite) {
+    public WriteTask(final SelectionKey key, final byte[] dataToWrite, final MessageTracker messageTracker) {
         this.dataToWrite = dataToWrite;
         this.key = key;
+        this.messageTracker = messageTracker;
     }
 
     @Override
@@ -24,6 +26,7 @@ public class WriteTask implements Task {
     public void perform() throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         channel.write(ByteBuffer.wrap(dataToWrite));
+        messageTracker.incrementMessageProcessed();
         key.interestOps(SelectionKey.OP_READ);
     }
 

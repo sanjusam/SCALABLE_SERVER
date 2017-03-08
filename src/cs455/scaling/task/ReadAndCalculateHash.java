@@ -64,19 +64,24 @@ public class ReadAndCalculateHash implements Task {
         try {
             while(buffer.hasRemaining() && readBytes > 0) {
                 readBytes = channel.read(buffer);
+                key.attach(null);
+                if(readBytes == 0) {
+                    System.out.println("SANJU : HIT A ZERO BYTE READ");
+                }
                 if(readBytes == -1 ) {
                     System.out.println("Error : Failure in reading, client closed.");
                     connectionTracker.decrementConnectionCount();
                     channel.close();
                     return;
                 } else if(readBytes == 8192) {
+                    System.out.println("SANJU : HIT THE RIGHT BYTE READ");
                     readAndProcessData(buffer);
                 } else {
                     return; //Partially ready data??
                 }
             }
         } catch (final IOException iOe) {
-            System.out.println("Error : IO Exception thrown while reading byte buffer, client closed");
+            System.out.println(Thread.currentThread().getName() + " Error : IO Exception thrown while reading byte buffer, client closed");
             connectionTracker.decrementConnectionCount();
             channel.close();
             return;
@@ -84,15 +89,16 @@ public class ReadAndCalculateHash implements Task {
     }
 
     private void readAndProcessData(final ByteBuffer buffer) throws NoSuchAlgorithmException {
-        messageTracker.incrementMessageReceived();
+//        messageTracker.incrementMessageProcessed();
         byte[] data = new byte[8192];
         buffer.flip();
         buffer.get(data);
 
 //        key.interestOps(SelectionKey.OP_WRITE);
+//        messageTracker.incrementMessageProcessed();
         dataToSendBack = SHA1FromBytes(data);
         //TODO :: Should I add a new task to write to the same key??
-        final Task writeTask = new WriteTask(key, dataToSendBack.getBytes());
+        final Task writeTask = new WriteTask(key, dataToSendBack.getBytes(), messageTracker);
         TaskQueueManager.getInstance().addTask(writeTask);
 
     }
