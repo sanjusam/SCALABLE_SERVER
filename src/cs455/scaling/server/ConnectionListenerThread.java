@@ -17,7 +17,7 @@ public class ConnectionListenerThread implements Runnable {
     private Selector selector;
     private final ConnectionTracker clientConnectionTracker ;
     private final MessageTracker messageTracker ;
-    private TaskQueueManager taskQueueManager = TaskQueueManager.getInstance();
+    private TaskQueueManager taskQueueManager = TaskQueueManager.getInstance();  // Have an instance of the queue manager to add reading task  to the queue
 
     ConnectionListenerThread(final Selector selector, final ConnectionTracker clientConnectionTracker, final MessageTracker messageTracker) {
         this.selector = selector;
@@ -35,7 +35,7 @@ public class ConnectionListenerThread implements Runnable {
                 continue;
             }
             Iterator keys = this.selector.selectedKeys().iterator();
-            while (keys.hasNext()) {
+            while (keys.hasNext()) {  // Only interested in read and accept.  The write task is added after a successful read.
                 final SelectionKey key = (SelectionKey) keys.next();
                 keys.remove();
                 if (! key.isValid()) {
@@ -49,7 +49,7 @@ public class ConnectionListenerThread implements Runnable {
         }
     }
 
-    private void read(final SelectionKey key) {
+    private void read(final SelectionKey key) { //Add a task to read, if the channel is ready to be read.
         final Object attachment = new Object();
         final SocketChannel channel = (SocketChannel) key.channel();
         final Task readAndCalculateHashTask = new ReadAndCalculateHash(key, channel, messageTracker, clientConnectionTracker);
@@ -58,7 +58,7 @@ public class ConnectionListenerThread implements Runnable {
     }
 
 
-    private void accept(SelectionKey key) {  // Accespt the connection.
+    private void accept(SelectionKey key) {  // Accept the connection.
         ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
 
         try {
@@ -72,6 +72,4 @@ public class ConnectionListenerThread implements Runnable {
             System.out.println("Warn : IO Exception while accept");
         }
     }
-
-
 }

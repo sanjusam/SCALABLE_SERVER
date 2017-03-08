@@ -63,6 +63,8 @@ public class Client {
         clientDataReceiverThread.start();
     }
 
+    /*Input validation for all the inputs passed  - If not valid input just exit*/
+
     private static void validateInputArguments(final String[] args) {
         final boolean validArgs = ValidateCommandLine.validateArgumentCount(3, args); // Three arguments needed
         if(!validArgs) {

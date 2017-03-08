@@ -1,6 +1,6 @@
 package cs455.scaling.client;
 
-public class ClientMessageTracker {
+public class ClientMessageTracker {  //Class that track the messages send and received from the server. It has two different lock mechanism to lock while incrementing and getting the count.
     private static ClientMessageTracker INSTANCE = new ClientMessageTracker();
 
     public static synchronized ClientMessageTracker getInstance(){
@@ -30,7 +30,7 @@ public class ClientMessageTracker {
         }
     }
 
-    int getNumSendMessage() {
+    int getNumSendMessage() {  //This does the clear of the counters too.  In this way, I can avoid a separate transaction to lock and increment.
         synchronized (LOCK_SEND) {
             final int temp = numMessagesSend;
             numMessagesSend = 0;
@@ -38,7 +38,7 @@ public class ClientMessageTracker {
         }
     }
 
-    int getNumMessagesReceived() {
+    int getNumMessagesReceived() {  //This does the clear of the counters too.
         synchronized (LOCK_REC) {
             final int temp = numMessagesReceived;
             numMessagesReceived = 0;

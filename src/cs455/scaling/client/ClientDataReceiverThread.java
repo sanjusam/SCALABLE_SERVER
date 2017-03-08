@@ -21,7 +21,8 @@ public class ClientDataReceiverThread implements Runnable {
                 break;
             }
         }
-
+        /* Loops to receive data until the server closes the connection.  When the server closes the connection
+        * there are chances, that the there is a null/bad data read, and causes the thread to print "Hash from the server is null - Server Exited."*/
         while (true) {
             final String hashReceived = readMessageFromServer();
             if (hashReceived != null) {
@@ -37,7 +38,7 @@ public class ClientDataReceiverThread implements Runnable {
 
 
     private String readMessageFromServer() {
-        final int expectedSize = 40;
+        final int expectedSize = 40;  // Length of the hash, coming from the server is mostly 40, and in rare cases its 39.
         final ByteBuffer byteBuffer = ByteBuffer.allocate(expectedSize);
         int numRead = -1;
         try {

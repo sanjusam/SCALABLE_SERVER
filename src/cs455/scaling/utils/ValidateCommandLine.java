@@ -1,6 +1,6 @@
 package cs455.scaling.utils;
 
-public class ValidateCommandLine {
+public class ValidateCommandLine {  //Command line validators.
 
     public static int INVALID_NUMBER = -999999999; //Random bad number
 
